@@ -6,11 +6,14 @@ using Telegram.Bot.Types.Enums;
 public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
+    private readonly WeatherService weatherService;
 
     public UpdateHandler(
-        ILogger<UpdateHandler> logger)
+        ILogger<UpdateHandler> logger,
+        WeatherService weatherService)
     {
         this.logger = logger;
+        this.weatherService = weatherService;
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
