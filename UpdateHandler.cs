@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Distributed;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -7,13 +8,16 @@ public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
     private readonly WeatherService weatherService;
+    private readonly IDistributedCache distributedCache;
 
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
-        WeatherService weatherService)
+        WeatherService weatherService,
+        IDistributedCache distributedCache)
     {
         this.logger = logger;
         this.weatherService = weatherService;
+        this.distributedCache = distributedCache;
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -28,6 +32,7 @@ public partial class UpdateHandler : IUpdateHandler
         {
             UpdateType.Message => HandleMessageUpdateAsync(botClient, update.Message, cancellationToken),
             UpdateType.EditedMessage => HandleEditedMessageUpdateAsync(botClient, update.EditedMessage, cancellationToken),
+            UpdateType.CallbackQuery => HandleCallbackQueryUpdateAsync(botClient, update.CallbackQuery, cancellationToken),
             _ => HandleUnknownUpdateAsync(botClient, update, cancellationToken)
         };
 

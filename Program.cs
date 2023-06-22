@@ -12,5 +12,9 @@ builder.Services.AddHttpClient("OpenMeteoClient", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration.GetValue("OpenMeteoBaseUrl", string.Empty));
 });
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"];
+});
 
 builder.Build().Run();

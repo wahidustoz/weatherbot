@@ -1,5 +1,6 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
 
 public partial class UpdateHandler
@@ -18,19 +19,21 @@ public partial class UpdateHandler
 
         if(message.Text == "/start")
         {
+            await SendLanguageKeyboardAsync(botClient, message.Chat.Id, cancellationToken);
 
-            var sentMessage = await botClient.SendTextMessageAsync(
-                chatId: message.Chat.Id,
-                text: "Manzilni ulashing!",
-                replyMarkup: new ReplyKeyboardMarkup(new KeyboardButton("Manzilni ulashing")
-                {
-                    RequestLocation = true
-                }),
-                cancellationToken: cancellationToken
-            );
 
-            locationRequestMessages.TryAdd(sentMessage.Chat.Id, sentMessage.MessageId);
-            await RemoveMessageAsync(botClient, message.Chat.Id, message.MessageId);
+            // var sentMessage = await botClient.SendTextMessageAsync(
+            //     chatId: message.Chat.Id,
+            //     text: "Manzilni ulashing!",
+            //     replyMarkup: new ReplyKeyboardMarkup(new KeyboardButton("Manzilni ulashing")
+            //     {
+            //         RequestLocation = true
+            //     }),
+            //     cancellationToken: cancellationToken
+            // );
+
+            // locationRequestMessages.TryAdd(sentMessage.Chat.Id, sentMessage.MessageId);
+            // await RemoveMessageAsync(botClient, message.Chat.Id, message.MessageId);
 
             return; // handled /start message so return
         }
@@ -59,6 +62,27 @@ public partial class UpdateHandler
                 await HandlePollingErrorAsync(botClient, ex, cancellationToken);
             }
         }
+    }
+
+    private async Task SendLanguageKeyboardAsync(ITelegramBotClient botClient, long chatId, CancellationToken cancellationToken)
+    {
+        var buttonArray = new InlineKeyboardMarkup(
+            new InlineKeyboardButton[][]
+            {
+                new InlineKeyboardButton[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: "O'zbekcha", callbackData: "uz"),
+                    InlineKeyboardButton.WithCallbackData(text: "Русский", callbackData: "ru"),
+                    InlineKeyboardButton.WithCallbackData(text: "English", callbackData: "un"),
+                }
+            }
+        );
+
+        await botClient.SendTextMessageAsync(
+            text: "Select languange",
+            chatId: chatId,
+            replyMarkup: buttonArray,
+            cancellationToken: cancellationToken);
     }
 
     private async Task RemoveMessageAsync(
